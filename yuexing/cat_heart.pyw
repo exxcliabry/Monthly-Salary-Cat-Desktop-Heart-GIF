@@ -1,9 +1,3 @@
-"""
-月薪猫爱心小程序 - pygame版本
-从底部逐个生成，逆时针形成爱心
-真正的透明图层叠加，无遮挡问题
-"""
-
 import pygame
 import math
 import os
@@ -29,9 +23,6 @@ CONFIG = {
 
 
 def remove_bg_surface(surface, threshold=40):
-    """
-    抠图：将接近黑色的像素变为透明
-    """
     surface = surface.convert_alpha()
     pixels = pygame.surfarray.pixels3d(surface)
     alpha = pygame.surfarray.pixels_alpha(surface)
@@ -53,8 +44,6 @@ def remove_bg_surface(surface, threshold=40):
 
 
 class AnimatedCat:
-    """单个动画猫咪"""
-
     def __init__(self, gif_path, x, y, size, threshold, brightness=1.0):
         self.x = x
         self.y = y
@@ -67,7 +56,7 @@ class AnimatedCat:
         self.load_gif(gif_path, size, threshold, brightness)
 
     def load_gif(self, gif_path, size, threshold, brightness=1.0):
-        """加载GIF并抠图，同时提取帧延迟"""
+        
         try:
             from PIL import Image, ImageEnhance
 
@@ -106,13 +95,11 @@ class AnimatedCat:
             print(f"加载失败 {gif_path}: {e}")
 
     def update(self, current_time):
-        """启动动画计时"""
         if not self.started and self.frames:
             self.anim_start = current_time
             self.started = True
 
     def get_frame_index(self, current_time):
-        """基于绝对时间计算当前帧索引，掉帧不卡"""
         if not self.frames:
             return 0
         elapsed = current_time - self.anim_start
@@ -127,7 +114,6 @@ class AnimatedCat:
         return 0
 
     def draw(self, screen, current_time):
-        """绘制当前帧"""
         if self.frames:
             idx = self.get_frame_index(current_time)
             frame = self.frames[idx]
@@ -185,7 +171,6 @@ class CatHeartApp:
         self.font = pygame.font.SysFont("microsoftyahei", 20)
 
     def set_window_transparent(self):
-        """设置窗口透明（Windows API）"""
         try:
             import ctypes
             hwnd = pygame.display.get_wm_info()["window"]
@@ -203,7 +188,6 @@ class CatHeartApp:
             print(f"透明设置失败: {e}")
 
     def center_window(self):
-        """窗口居中"""
         import ctypes
         user32 = ctypes.windll.user32
         screen_w = user32.GetSystemMetrics(0)
@@ -213,7 +197,6 @@ class CatHeartApp:
         os.environ['SDL_VIDEO_WINDOW_POS'] = f"{x},{y}"
 
     def preload_giant_frames(self):
-        """预加载大猫高清帧"""
         try:
             from PIL import Image, ImageEnhance
             path = random.choice(self.gif_paths)
@@ -250,7 +233,6 @@ class CatHeartApp:
             print(f"大猫帧加载失败: {e}")
 
     def draw_giant_cat(self, screen, current_time, current_size):
-        """绘制指定尺寸的大猫（从高清帧缩放）"""
         if not self.giant_frames:
             return
         # 首次绘制时记录动画起始时间
@@ -281,7 +263,6 @@ class CatHeartApp:
         return -(13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t))
 
     def get_heart_points(self):
-        """获取爱心轮廓点（从底部逆时针，弧长均匀采样）"""
         count = CONFIG["outline_count"]
         scale = CONFIG["heart_scale"]
         start_t = math.pi * 1.5
@@ -325,7 +306,6 @@ class CatHeartApp:
         return points
 
     def spawn_cat(self):
-        """生成一只猫咪"""
         if self.spawn_index >= len(self.heart_points):
             return
 
@@ -342,7 +322,6 @@ class CatHeartApp:
         self.spawn_index += 1
 
     def run(self):
-        """主循环"""
         clock = pygame.time.Clock()
         running = True
 

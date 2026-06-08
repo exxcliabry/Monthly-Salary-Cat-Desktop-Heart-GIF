@@ -1,9 +1,3 @@
-"""
-月薪猫爱心小程序
-用动态GIF图片沿着爱心轮廓逆时针排列一圈
-透明背景，置顶显示在桌面
-"""
-
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw
 import math
@@ -34,16 +28,10 @@ CONFIG = {
 
 
 def _color_dist(c1, c2):
-    """计算两个RGB颜色的欧氏距离"""
     return math.sqrt((c1[0]-c2[0])**2 + (c1[1]-c2[1])**2 + (c1[2]-c2[2])**2)
 
 
 def remove_black_bg(img, threshold=30):
-    """
-    去除黑色背景（抠图）
-    使用边缘泛洪填充：只移除与图片边缘相连的相似颜色区域，
-    保留图片内部的深色像素（如黑色猫毛、阴影等）
-    """
     img = img.convert("RGBA")
     w, h = img.size
     pixels = img.load()
@@ -102,7 +90,6 @@ def remove_black_bg(img, threshold=30):
 
 
 class AnimatedGif:
-    """管理单个GIF的动画"""
 
     def __init__(self, canvas, gif_path, x, y, size, threshold):
         self.canvas = canvas
@@ -131,7 +118,6 @@ class AnimatedGif:
             self.animate()
 
     def load_frames(self, gif_path):
-        """加载GIF的所有帧并抠图"""
         try:
             img = Image.open(gif_path)
             frame_count = getattr(img, 'n_frames', 1)
@@ -150,7 +136,6 @@ class AnimatedGif:
             print(f"[FAIL] 加载失败 {gif_path}: {e}")
 
     def animate(self):
-        """播放动画"""
         if not self.frames or not self.label:
             return
 
@@ -162,7 +147,6 @@ class AnimatedGif:
         self.animation_id = self.canvas.after(CONFIG["gif_speed"], self.animate)
 
     def update_action(self, gif_path):
-        """切换动作"""
         # 停止当前动画
         if self.animation_id:
             self.canvas.after_cancel(self.animation_id)
@@ -177,7 +161,6 @@ class AnimatedGif:
             self.animate()
 
     def destroy(self):
-        """销毁"""
         if self.animation_id:
             self.canvas.after_cancel(self.animation_id)
 
@@ -218,15 +201,12 @@ class CatHeartApp:
         self.draw_heart()
 
     def heart_x(self, t):
-        """爱心X坐标（参数方程）"""
         return 16 * math.pow(math.sin(t), 3)
 
     def heart_y(self, t):
-        """爱心Y坐标（参数方程）"""
         return -(13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t))
 
     def get_heart_points(self):
-        """获取爱心轮廓上的点（逆时针）"""
         points = []
         count = CONFIG["outline_count"]
         scale = CONFIG["heart_scale"]
@@ -243,7 +223,6 @@ class CatHeartApp:
         return points
 
     def create_widgets(self):
-        """创建界面组件"""
         # 标题（透明背景）
         title = tk.Label(
             self.root,
@@ -295,7 +274,6 @@ class CatHeartApp:
         self.status_label.pack(pady=3)
 
     def draw_heart(self):
-        """绘制爱心轮廓"""
         # 清除旧的
         self.canvas.delete("all")
         for cat in self.animated_cats:
@@ -322,13 +300,11 @@ class CatHeartApp:
         self.update_status()
 
     def update_status(self):
-        """更新状态栏"""
         self.status_label.config(
             text=f"共 {len(self.animated_cats)} 只动态猫咪 | 按 R/U/F5 快捷操作"
         )
 
     def randomize(self):
-        """随机化所有动作"""
         for cat in self.animated_cats:
             action = random.randint(1, CONFIG["total_actions"])
             gif_path = f"{action}.gif"
@@ -337,7 +313,6 @@ class CatHeartApp:
         self.status_label.config(text="🎲 动作已随机！")
 
     def uniform(self):
-        """统一所有动作为同一个"""
         action = random.randint(1, CONFIG["total_actions"])
         gif_path = f"{action}.gif"
         if os.path.exists(gif_path):
@@ -346,12 +321,10 @@ class CatHeartApp:
             self.status_label.config(text=f"✨ 统一为动作 {action}")
 
     def refresh(self):
-        """重新生成爱心"""
         self.draw_heart()
         self.status_label.config(text="🔄 爱心已重新生成！")
 
     def run(self):
-        """运行应用"""
         self.root.bind("<r>", lambda e: self.randomize())
         self.root.bind("<R>", lambda e: self.randomize())
         self.root.bind("<u>", lambda e: self.uniform())
